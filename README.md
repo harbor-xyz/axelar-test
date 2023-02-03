@@ -2,7 +2,7 @@
 
 ## Overview
 
-Harbor has successfully cloned Axelar onto one of our Testnets. The `test/sample.test.ts` runs tests against this cloned Axelar bridge. The tests go over the following: 
+Axelar is an available bridge to clone on Harbor's Testnet. The `test/sample.test.ts` runs tests against an already cloned Axelar bridge. The tests go over the following: 
 
 - Checking if the Testnet exist
 - Checking if the Chains exist
