@@ -1,9 +1,16 @@
-import Harbor from '@harbor-xyz/harbor';
-import { Account, Balance, Contract, Chain, Log, OffChainActor, Testnet } from '@harbor-xyz/harbor/dist/harbor_sdk/types';
+import Harbor from "@harbor-xyz/harbor";
+import {
+  Account,
+  Balance,
+  Contract,
+  Chain,
+  Log,
+  OffChainActor,
+  Testnet,
+} from "@harbor-xyz/harbor/dist/harbor_sdk/types";
 import { expect } from "chai";
 
 describe("Harbor Test E2E", function () {
-
   jest.setTimeout(1200000);
 
   let harbor: Harbor;
@@ -13,7 +20,7 @@ describe("Harbor Test E2E", function () {
   beforeAll(async () => {
     harbor = new Harbor({
       userKey: "wyBXi3jEHSYXnqBKosoJH3",
-      projectKey: "56JusKMRhQ4a6mUfL5QGAP"
+      projectKey: "56JusKMRhQ4a6mUfL5QGAP",
     });
     await harbor.authenticate();
     if (typeof testnetName === "string") {
@@ -40,9 +47,11 @@ describe("Harbor Test E2E", function () {
     });
   });
 
-  it('Checks if the Offchain actors exists', async function () {
+  it("Checks if the Offchain actors exists", async function () {
     const offChainActors = testnet.offChainActors();
-    console.log(`\n\n==========offChainActors(${offChainActors.length})==========`);
+    console.log(
+      `\n\n==========offChainActors(${offChainActors.length})==========`
+    );
     offChainActors.forEach((actor) => {
       console.log("Off-chian actor: " + actor.name);
       console.log("Endpoint: " + actor.endpoint);
@@ -51,12 +60,12 @@ describe("Harbor Test E2E", function () {
     });
   });
 
-  it('Restart Axelar node', async function () {
+  it("Restart Axelar node", async function () {
     console.log("Stopping axelarNode");
     testnet = await harbor.stop(testnet.name, "axelarNode");
     let offChainActors = testnet.offChainActors();
     for (const actor of offChainActors) {
-      if(actor.name == "axelarNode") {
+      if (actor.name == "axelarNode") {
         console.log(`${actor.name} - ${actor.status}`);
         expect(actor.status).to.equal("STOPPED");
       }
@@ -65,8 +74,12 @@ describe("Harbor Test E2E", function () {
     testnet = await harbor.start(testnet.name, "axelarNode");
     offChainActors = testnet.offChainActors();
     for (const actor of offChainActors) {
-      if(actor.name == "axelarNode") {
-        console.log(`${actor.name} - ${actor.status} - ${actor.ports()} - ${actor.endpoint}`);
+      if (actor.name == "axelarNode") {
+        console.log(
+          `${actor.name} - ${actor.status} - ${actor.ports()} - ${
+            actor.endpoint
+          }`
+        );
         expect(actor.status).to.equal("RUNNING");
       }
     }
@@ -74,22 +87,25 @@ describe("Harbor Test E2E", function () {
 
   it("Assert and print chain logs", async function () {
     if (typeof testnetName === "string") {
-    testnet = await harbor.testnet(testnetName);
-    const chains = testnet.chains();
-    let success = false;
-    for (const chain of chains) {
-      if(chain.chain == "ethereum") {
-        await chain.logs().then((logs) => {
-          logs.forEach((log) => {
-            if(log.message.includes("Deploying") || log.message.includes("Deployed")) {
-              console.log(log);
-              success = true;
-            } 
+      testnet = await harbor.testnet(testnetName);
+      const chains = testnet.chains();
+      let success = false;
+      for (const chain of chains) {
+        if (chain.chain == "ethereum") {
+          await chain.logs().then((logs) => {
+            logs.forEach((log) => {
+              if (
+                log.message.includes("Deploying") ||
+                log.message.includes("Deployed")
+              ) {
+                console.log(log);
+                success = true;
+              }
+            });
           });
-        });
+        }
       }
+      expect(success).to.equal(true);
     }
-    expect(success).to.equal(true);
-  }
   });
 });
