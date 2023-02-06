@@ -60,20 +60,41 @@ describe("Harbor Test E2E", function () {
     });
   });
 
+  it("Checks if the ETH balances of all Ethereum wallets are 10000 ETH", async function () {
+    const ethereum = testnet.ethereum;
+    const ethereumWallets = await ethereum.wallets();
+    ethereumWallets.forEach((wallet) => {
+      const balances = wallet.balances;
+      expect(balances["ETH"]).to.equal("10000");
+    });
+  });
+
+  it("Checks if the Contract Greeter exists on Ethereum", async function () {
+    const ethereum = testnet.ethereum;
+    const ethereumContracts = await ethereum.contracts();
+    let exists = false;
+    ethereumContracts.forEach((contract) => {
+      if (contract.name == "Greeter") {
+        exists = true;
+      }
+    });
+    expect(exists).to.equal(true);
+  });
+
   it("Restart Axelar node", async function () {
     console.log("Stopping axelarNode");
     testnet = await harbor.stop(testnet.name, "axelarNode");
     let offChainActors = testnet.offChainActors();
-    for (const actor of offChainActors) {
+    offChainActors.forEach((actor) => {
       if (actor.name == "axelarNode") {
         console.log(`${actor.name} - ${actor.status}`);
         expect(actor.status).to.equal("STOPPED");
       }
-    }
+    });
     console.log("Starting axelarNode");
     testnet = await harbor.start(testnet.name, "axelarNode");
     offChainActors = testnet.offChainActors();
-    for (const actor of offChainActors) {
+    offChainActors.forEach((actor) => {
       if (actor.name == "axelarNode") {
         console.log(
           `${actor.name} - ${actor.status} - ${actor.ports()} - ${
@@ -82,7 +103,7 @@ describe("Harbor Test E2E", function () {
         );
         expect(actor.status).to.equal("RUNNING");
       }
-    }
+    });
   });
 
   it("Assert and print chain logs", async function () {
@@ -90,7 +111,7 @@ describe("Harbor Test E2E", function () {
       testnet = await harbor.testnet(testnetName);
       const chains = testnet.chains();
       let success = false;
-      for (const chain of chains) {
+      chains.forEach(async (chain) => {
         if (chain.chain == "ethereum") {
           await chain.logs().then((logs) => {
             logs.forEach((log) => {
@@ -104,7 +125,8 @@ describe("Harbor Test E2E", function () {
             });
           });
         }
-      }
+      });
+
       expect(success).to.equal(true);
     }
   });
