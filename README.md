@@ -22,7 +22,7 @@ yarn install
 ```
 
 ## Running the tests
-After installing the packages, you can execute the test, by running:
+After installing the packages, you can execute the test by running:
 
 ```bash
 yarn jest
