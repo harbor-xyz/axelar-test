@@ -10,13 +10,14 @@ describe("Harbor Test E2E", function () {
   const testnetName: string = "axelar-testnet";
 
   beforeAll(async () => {
+    // add your userKey and projectKey here!
     harbor = new Harbor({
-      userKey: "wyBXi3jEHSYXnqBKosoJH3",
-      projectKey: "56JusKMRhQ4a6mUfL5QGAP",
+      userKey: "",
+      projectKey: "",
     });
     await harbor.authenticate();
     if (typeof testnetName === "string") {
-      testnet = await harbor.testnet(testnetName);
+      testnet = await harbor.clone("protocol-Axelar", testnetName);
     }
   });
 
