@@ -1,11 +1,11 @@
-## Prerequisites
+# Prerequisites
 
 To follow this test, you'll need the following tools installed on your machine:
 
 - Git (https://git-scm.com/)
 - Node.js (https://nodejs.org/)
 
-## Getting started
+# Getting started
 
 1. You need to add the credentials in the `test/test-cross-chain-call.test.js`, which consist of the `userKey` and the `projectKey`. To get your user key, [follow this tutorial](/docs/Tutorials/manage_credentials#getting-user-key). To get your project key, [follow this tutorial](/docs/Tutorials/manage_credentials#managing-project-key).
 
@@ -38,17 +38,17 @@ yarn install
 rm -rf artifacts && npx hardhat compile
 ```
 
-## Overview of contracts
+# Overview of contracts
 
 You will be looking at two contracts, one on the Ethereum blockchain and another on the Polygon blockchain. [The Ethereum contract](https://github.com/harbor-xyz/axelar-test/blob/master/contracts/ethereum_contracts/MessageSender.sol) will act as the message sender while [the Polygon contract](https://github.com/harbor-xyz/axelar-test/blob/master/contracts/polygon_contracts/MessageReceiver.sol) will act as the message receiver.
 
 You can read the contracts in-depth if you'd like to learn more about them.
 
-## Testing
+# Testing
 
 The test is located in the `test/test-cross-chain-call.test.js`. Open it and follow along!
 
-### Axelar Testnet configuration
+## Axelar Testnet configuration
 
 Before you move on to running the tests, you need to know how you are applying the Axelar Testnet configuration that contains the 2 custom contracts.
 
@@ -118,16 +118,13 @@ yarn jest test/test-cross-chain-call.test.js
 
 As explained above, this test applies the Axelar configuration with the custom contracts, checks for the chains / off-chain actors existence on the Testnet while also executing and asserting the cross-chain transaction from Ethereum to Polygon.
 
-### Overview of tests
+## Overview of tests
 
-#### Check if the Testnet is up with the right chains and off chain actors
+### Check if the Testnet is up with the right chains and off chain actors
 
 After you apply the Testnet in the `beforeAll` function, you must check that the testnet, the chains and the off-chain actor (just the relayer) exist!
 
-#### Check if the cross-chain message passing works
+### Check if the cross-chain message passing works
 
 Next, you need to prove that the cross-chain message passing works. Your Ethereum contract, `MessageSender`, needs to send a message. After that transaction is made, the attribute `value()` is expected to change to the new message in the contract `MessageReceiver` on Polygon. Asserting that the `MessageReceiver`'s `value` equals to the `MESSAGE` variable that was set in the test is enough to prove that the cross-chain transaction worked!
 
-:::infoChange `MESSAGE` value _(optional)_
-If you'd like, you can change the `MESSAGE` variable at the start of the test. This will allow you to confirm the cross-chain transaction
-:::
