@@ -1,67 +1,133 @@
-# Harbor Workshop
-
-Welcome to the Harbor Workshop at Interop Summit! This workshop will guide you through the process of setting up and running a project using the Harbor SDK.
-
 ## Prerequisites
 
-To follow this workshop, you'll need the following tools installed on your machine:
+To follow this test, you'll need the following tools installed on your machine:
 
 - Git (https://git-scm.com/)
 - Node.js (https://nodejs.org/)
 
 ## Getting started
 
-To get started with the workshop, follow these steps:
+1. You need to add the credentials in the `test/test-cross-chain-call.test.js`, which consist of the `userKey` and the `projectKey`. To get your user key, [follow this tutorial](/docs/Tutorials/manage_credentials#getting-user-key). To get your project key, [follow this tutorial](/docs/Tutorials/manage_credentials#managing-project-key).
 
-1. Clone the Git repository to your local machine:
+It should look like this:
 
-   ```sh
-   git clone https://github.com/harbor-xyz/workshop-interop.git
-   ```
+```javascript
+harbor = new Harbor({
+  userKey: "cFeJWnDwQFVTSF2AabM2W5",
+  projectKey: "fPMeKGPUfyBTCoq2omv3G4",
+});
+```
 
-2. Set the testnet name prefix in the `utils/config.js` file. You can do this by updating the TESTNET_NAME variable to a unique name prefix of your choice. For example:
+The above keys are for demonstration only. They don't actually work! Also, the Harbor SDK does not support parallel test execution, yet. But this is coming soon!
 
-   ```javascript
-        let TESTNET_NAME = ""        
-   ```
+2. Set the testnet name value in the `test/test-cross-chain-call.test.js` file. You can do this by updating the `TESTNET_NAME` variable to a unique name of your choice. For example:
+
+```bash
+let TESTNET_NAME = ""
+```
 
 3. Install the project dependencies by running the following command:
-    ```
-        yarn install
-    ```
 
-4. Compile the contracts
-    ```
-        npx hardhat compile
-    ```
+```bash
+yarn install
+```
 
-## Overview of Scripts 
+4. Finally, compile the contracts:
 
-### Scripts
-- ```node scripts/applyTestnet.js ```
-     the script uses the Harbor SDK to authenticate the user and create a new testnet using the defined configuration. The script then prints the status and endpoint information for both the Ethereum and Polygon chains included in the network, as well as the endpoint and logs for an off-chain actor called the "Axelar Relayer". The runHarborApply() function includes a timeout of 300,000 milliseconds (5 minutes) and catches any errors that may occur during the network creation process.
+```bash
+rm -rf artifacts && npx hardhat compile
+```
 
-- ```node scripts/executeCrossChainCall.js ```
-    This script uses the Harbor SDK to interact with smart contracts on both the Ethereum and Polygon chains. It then accesses a previously created testnet on Harbor and loads the smart contract instances for the Ethereum and Polygon chains.
-    The script logs the initial value of a specific variable in the Polygon contract, updates the value by calling a function on the Ethereum contract, waits until the new value is reflected in the Polygon contract, and logs the final value.
-    The script uses ethers to interact with the smart contracts and defines a sleep function to wait for a specified amount of time. The MESSAGE constant is a string that is passed from Ethereum to Polygon.
+## Overview of contracts
 
+You will be looking at two contracts, one on the Ethereum blockchain and another on the Polygon blockchain. [The Ethereum contract](https://github.com/harbor-xyz/axelar-test/blob/master/contracts/ethereum_contracts/MessageSender.sol) will act as the message sender while [the Polygon contract](https://github.com/harbor-xyz/axelar-test/blob/master/contracts/polygon_contracts/MessageReceiver.sol) will act as the message receiver.
 
--  ```node scripts/diagnosis.js ```
-    The code is a Node.js script that retrieves and prints logs for a testnet in Harbor. It connects to the Harbor SDK, authenticates with user credentials, retrieves the testnet details, and prints the Ethereum and Polygon logs for the testnet. It also prints the logs for the offchain actor relayer.
+You can read the contracts in-depth if you'd like to learn more about them.
 
+## Testing
 
-### Test 
-- ```yarn jest test/test-cross-chain-call.test.js```
-    The script is testing the functionality of the cross-chain message passing. The script first applies the Testnet configuration, next it asserts the existence of the chains/off-chain actors. Finally, it asserts that the transaction has been successfully made cross-chain.
-    
-## Troubleshooting
-If you encounter any issues during the workshop, please refer to the following resources:
+The test is located in the `test/test-cross-chain-call.test.js`. Open it and follow along!
 
-- The project documentation (https://docs.goharbor.com/docs)
-- The Harbor SDK documentation (https://docs.goharbor.com/docs/SDK/)
+### Axelar Testnet configuration
 
-If you are still unable to resolve the issue, please reach out to the workshop facilitator for assistance.
+Before you move on to running the tests, you need to know how you are applying the Axelar Testnet configuration that contains the 2 custom contracts.
 
-## Conclusion
-Congratulations, you have completed the Harbor Interop Workshop! We hope you found this workshop informative and useful. If you have any feedback or suggestions for improvement, please let us know. Thank you for participating in our workshop!
+<!-- Add the configuration link to explain more -->
+
+The variable `harborConfig` contains the JSON:
+
+```typescript
+const harborConfig = {
+  bridges: [
+    {
+      name: "AXELAR",
+      chains: ["ethereum", "polygon"],
+    },
+  ],
+  chains: [
+    {
+      chain: "ethereum",
+      config: {
+        artifactsPath: "./artifacts/",
+        deploy: {
+          scripts: "./deploy/ethereum",
+        },
+        environment: {
+          AXL_GATEWAY_ADDR: "$axl_gateway_addr",
+          AXL_GAS_RECEIVER_ADDR: "$axl_gasReceiver_addr",
+        },
+      },
+      tag: "v7",
+    },
+    {
+      chain: "polygon",
+      config: {
+        artifactsPath: "./artifacts",
+        deploy: {
+          scripts: "./deploy/polygon",
+        },
+        environment: {
+          AXL_GATEWAY_ADDR: "$axl_gateway_addr",
+          AXL_GAS_RECEIVER_ADDR: "$axl_gasReceiver_addr",
+        },
+      },
+      tag: "v7",
+    },
+  ],
+};
+```
+
+This Testnet configuration contains two important attributes, `bridges` and `chains`:
+
+- In `bridges`, you specify the `name` of bridge that you are applying along with the array of `chains` that you'd like to include in the bridge
+- In `chains`, you configure each separate chain further with it's own artifacts and deployment scripts.
+  - You must specify the `AXL_GATEWAY_ADDR` and `AXL_GAS_RECEIVER_ADDR` in the `environment` attribute.
+    - This is because both contracts needs these arguments in it's constructor, otherwise they won't work with the Axelar protocol
+  - Both their values `$axl_gateway_addr` and `$axl_gasReceiver_addr` are automatically filled by Harbor whilst it applies the Testnet
+
+:::info [READ MORE ABOUT THE CONFIGURATION FILE HERE](/docs/configuration/config_file)
+:::
+
+### Running the tests
+
+To execute the test, tun the following command in your terminal:
+
+```bash
+yarn jest test/test-cross-chain-call.test.js
+```
+
+As explained above, this test applies the Axelar configuration with the custom contracts, checks for the chains / off-chain actors existence on the Testnet while also executing and asserting the cross-chain transaction from Ethereum to Polygon.
+
+### Overview of tests
+
+#### Check if the Testnet is up with the right chains and off chain actors
+
+After you apply the Testnet in the `beforeAll` function, you must check that the testnet, the chains and the off-chain actor (just the relayer) exist!
+
+#### Check if the cross-chain message passing works
+
+Next, you need to prove that the cross-chain message passing works. Your Ethereum contract, `MessageSender`, needs to send a message. After that transaction is made, the attribute `value()` is expected to change to the new message in the contract `MessageReceiver` on Polygon. Asserting that the `MessageReceiver`'s `value` equals to the `MESSAGE` variable that was set in the test is enough to prove that the cross-chain transaction worked!
+
+:::infoChange `MESSAGE` value _(optional)_
+If you'd like, you can change the `MESSAGE` variable at the start of the test. This will allow you to confirm the cross-chain transaction
+:::
