@@ -7,7 +7,7 @@ To follow this test, you'll need the following tools installed on your machine:
 
 # Getting started
 
-1. You need to add the credentials in the `test/test-cross-chain-call.test.js`, which consist of the `userKey` and the `projectKey`. To get your user key, [follow this tutorial](https://docs.goharbor.com/docs/Tutorials/manage_credentials#getting-user-key). To get your project key, [follow this tutorial](https://docs.goharbor.com/docs/Tutorials/manage_credentials#managing-project-key).
+1. You need to add the credentials in the `test/test-cross-chain-call.test.js`, which consist of the `userKey` and the `projectKey`. To get your user key, [follow this tutorial](https://goharbor.com/docs/Tutorials/manage_credentials#getting-user-key). To get your project key, [follow this tutorial](https://docs.goharbor.com/docs/Tutorials/manage_credentials#managing-project-key).
 
 It should look like this:
 
@@ -104,6 +104,8 @@ This Testnet configuration contains two important attributes, `bridges` and `cha
   - You must specify the `AXL_GATEWAY_ADDR` and `AXL_GAS_RECEIVER_ADDR` in the `environment` attribute.
     - This is because both contracts needs these arguments in it's constructor, otherwise they won't work with the Axelar protocol
   - Both their values `$axl_gateway_addr` and `$axl_gasReceiver_addr` are automatically filled by Harbor whilst it applies the Testnet
+
+[READ MORE ABOUT THE CONFIGURATION FILE HERE](https://docs.goharbor.com/docs/configuration/config_file)
 
 ### Running the tests
 
